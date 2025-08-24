@@ -8,10 +8,24 @@ export function useAuth() {
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setUser(session?.user ?? null);
+        setLoading(false);
+      } catch (error) {
+        // Handle invalid refresh token errors
+        if (error instanceof Error && 
+            (error.message.includes('Refresh Token Not Found') || 
+             error.message.includes('Invalid Refresh Token'))) {
+          await supabase.auth.signOut();
+        }
+        setUser(null);
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
