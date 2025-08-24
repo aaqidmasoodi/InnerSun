@@ -34,6 +34,7 @@ export interface Database {
           mood: number;
           sentiment: 'positive' | 'neutral' | 'negative';
           keywords: string[];
+          ai_insight: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -46,6 +47,7 @@ export interface Database {
           mood?: number;
           sentiment?: 'positive' | 'neutral' | 'negative';
           keywords?: string[];
+          ai_insight?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -58,6 +60,7 @@ export interface Database {
           mood?: number;
           sentiment?: 'positive' | 'neutral' | 'negative';
           keywords?: string[];
+          ai_insight?: string | null;
           created_at?: string;
           updated_at?: string;
         };

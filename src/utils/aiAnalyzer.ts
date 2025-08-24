@@ -1,4 +1,5 @@
 import { JournalEntry, EmotionalInsight } from '../types/journal';
+import { getOverallInsights } from '../lib/groq';
 
 const positiveWords = [
   'grateful', 'thankful', 'blessed', 'happy', 'joyful', 'peaceful', 'content',
@@ -121,4 +122,16 @@ export function generateInsights(entries: JournalEntry[]): EmotionalInsight[] {
   }
 
   return insights;
+}
+export async function generateAISummary(
+  insight: EmotionalInsight,
+  totalEntries: number
+): Promise<string> {
+  return await getOverallInsights(
+    totalEntries,
+    insight.averageMood,
+    insight.streak,
+    insight.commonThemes,
+    insight.sentimentDistribution
+  );
 }

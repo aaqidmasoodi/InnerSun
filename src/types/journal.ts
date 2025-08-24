@@ -7,6 +7,8 @@ export interface JournalEntry {
   mood: number; // 1-5 scale
   sentiment: 'positive' | 'neutral' | 'negative';
   keywords: string[];
+  aiInsight?: string;
+  aiInsightLoading?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,6 +23,8 @@ export interface EmotionalInsight {
   };
   commonThemes: string[];
   streak: number;
+  aiSummary?: string;
+  aiSummaryLoading?: boolean;
 }
 
 export interface ChartData {

@@ -1,12 +1,14 @@
 import { TrendingUp, Heart, Calendar, Target } from 'lucide-react';
+import { Sparkles, Loader2 } from 'lucide-react';
 import { EmotionalInsight, ChartData } from '../types/journal';
 
 interface Props {
   insights: EmotionalInsight[];
   chartData: ChartData[];
+  onGenerateAISummary?: () => void;
 }
 
-export default function InsightsDashboard({ insights, chartData }: Props) {
+export default function InsightsDashboard({ insights, chartData, onGenerateAISummary }: Props) {
   const currentInsight = insights[0]; // Most recent period
 
   if (!currentInsight) {
@@ -113,6 +115,42 @@ export default function InsightsDashboard({ insights, chartData }: Props) {
         )}
       </div>
 
+      {/* AI Summary */}
+      <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-xl shadow-lg border border-indigo-100">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-2">
+            <Sparkles className="w-5 h-5 text-indigo-500" />
+            <h3 className="text-lg font-semibold text-indigo-800">AI Insights Summary</h3>
+          </div>
+          {!currentInsight.aiSummaryLoading && !currentInsight.aiSummary && (
+            <button
+              onClick={onGenerateAISummary}
+              className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors text-sm font-medium"
+            >
+              Generate Insights
+            </button>
+          )}
+        </div>
+        
+        {currentInsight.aiSummaryLoading ? (
+          <div className="flex items-center space-x-3 py-4">
+            <Loader2 className="w-5 h-5 animate-spin text-indigo-500" />
+            <div className="space-y-2 flex-1">
+              <div className="h-3 bg-indigo-200 rounded animate-pulse"></div>
+              <div className="h-3 bg-indigo-200 rounded animate-pulse w-3/4"></div>
+              <div className="h-3 bg-indigo-200 rounded animate-pulse w-1/2"></div>
+            </div>
+          </div>
+        ) : currentInsight.aiSummary ? (
+          <div className="bg-white/50 p-4 rounded-lg">
+            <p className="text-indigo-800 leading-relaxed">{currentInsight.aiSummary}</p>
+          </div>
+        ) : (
+          <p className="text-indigo-600 text-sm">
+            Get personalized insights about your gratitude journey and emotional patterns.
+          </p>
+        )}
+      </div>
       {/* Mood Chart */}
       {chartData.length > 0 && (
         <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-100">

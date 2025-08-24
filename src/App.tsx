@@ -7,7 +7,7 @@ import AuthForm from './components/AuthForm';
 import { JournalEntry as JournalEntryType, ChartData } from './types/journal';
 import { useAuth } from './hooks/useAuth';
 import { useJournalEntries } from './hooks/useJournalEntries';
-import { generateInsights } from './utils/aiAnalyzer';
+import { generateInsights, generateAISummary } from './utils/aiAnalyzer';
 
 type View = 'entries' | 'insights';
 
@@ -18,6 +18,44 @@ function App() {
   const [showEntryModal, setShowEntryModal] = useState(false);
   const [editingEntry, setEditingEntry] = useState<JournalEntryType | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [insights, setInsights] = useState(() => generateInsights(entries));
+
+  // Update insights when entries change
+  useState(() => {
+    setInsights(generateInsights(entries));
+  }, [entries]);
+
+  const handleGenerateAISummary = async () => {
+    if (insights.length === 0) return;
+    
+    const currentInsight = insights[0];
+    
+    // Set loading state
+    setInsights(prev => prev.map((insight, index) => 
+      index === 0 
+        ? { ...insight, aiSummaryLoading: true }
+        : insight
+    ));
+
+    try {
+      const aiSummary = await generateAISummary(currentInsight, entries.length);
+      
+      // Update with AI summary
+      setInsights(prev => prev.map((insight, index) => 
+        index === 0 
+          ? { ...insight, aiSummary, aiSummaryLoading: false }
+          : insight
+      ));
+    } catch (error) {
+      console.error('Failed to generate AI summary:', error);
+      // Remove loading state on error
+      setInsights(prev => prev.map((insight, index) => 
+        index === 0 
+          ? { ...insight, aiSummaryLoading: false }
+          : insight
+      ));
+    }
+  };
 
   // Show auth form if not authenticated
   if (authLoading) {
@@ -37,8 +75,6 @@ function App() {
     return <AuthForm />;
   }
 
-  const insights = generateInsights(entries);
-  
   const chartData: ChartData[] = entries.map(entry => ({
     date: entry.date,
     mood: entry.mood,
@@ -268,7 +304,11 @@ function App() {
             onDelete={handleDeleteEntry}
           />
         ) : (
-          <InsightsDashboard insights={insights} chartData={chartData} />
+          <InsightsDashboard 
+            insights={insights} 
+            chartData={chartData} 
+            onGenerateAISummary={handleGenerateAISummary}
+          />
         )}
           </>
         )}

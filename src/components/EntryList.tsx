@@ -1,4 +1,5 @@
 import { Calendar, Heart, Edit3, Trash2 } from 'lucide-react';
+import { Sparkles, Loader2 } from 'lucide-react';
 import { JournalEntry } from '../types/journal';
 
 interface Props {
@@ -117,6 +118,26 @@ export default function EntryList({ entries, onEdit, onDelete }: Props) {
                   {keyword}
                 </span>
               ))}
+            </div>
+          )}
+
+          {/* AI Insight */}
+          {(entry.aiInsight || entry.aiInsightLoading) && (
+            <div className="mt-4 p-3 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-100">
+              <div className="flex items-start space-x-2">
+                <Sparkles className="w-4 h-4 text-indigo-500 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <h5 className="text-xs font-medium text-indigo-700 mb-1">AI Insight</h5>
+                  {entry.aiInsightLoading ? (
+                    <div className="flex items-center space-x-2">
+                      <Loader2 className="w-3 h-3 animate-spin text-indigo-500" />
+                      <span className="text-xs text-indigo-600 animate-pulse">Getting insights...</span>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-indigo-700 leading-relaxed">{entry.aiInsight}</p>
+                  )}
+                </div>
+              </div>
             </div>
           )}
         </div>

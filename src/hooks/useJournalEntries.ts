@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { JournalEntry } from '../types/journal';
 import { analyzeSentiment, extractKeywords } from '../utils/aiAnalyzer';
+import { getJournalInsight } from '../lib/groq';
 
 export function useJournalEntries(userId: string | undefined) {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
@@ -34,6 +35,7 @@ export function useJournalEntries(userId: string | undefined) {
         mood: entry.mood,
         sentiment: entry.sentiment,
         keywords: entry.keywords,
+        aiInsight: entry.ai_insight,
         createdAt: new Date(entry.created_at),
         updatedAt: new Date(entry.updated_at),
       }));
@@ -69,6 +71,9 @@ export function useJournalEntries(userId: string | undefined) {
 
       if (error) throw error;
 
+      // Generate AI insight in the background
+      generateAIInsight(data.id, entryData.content, entryData.gratitudes, entryData.mood);
+
       await fetchEntries(); // Refresh the list
       return data;
     } catch (err) {
@@ -77,6 +82,41 @@ export function useJournalEntries(userId: string | undefined) {
     }
   };
 
+  const generateAIInsight = async (entryId: string, content: string, gratitudes: string[], mood: number) => {
+    try {
+      // Update UI to show loading state
+      setEntries(prev => prev.map(entry => 
+        entry.id === entryId 
+          ? { ...entry, aiInsightLoading: true }
+          : entry
+      ));
+
+      const insight = await getJournalInsight(content, gratitudes, mood);
+      
+      // Update database with AI insight
+      const { error } = await supabase
+        .from('journal_entries')
+        .update({ ai_insight: insight })
+        .eq('id', entryId);
+
+      if (error) throw error;
+
+      // Update UI with the insight
+      setEntries(prev => prev.map(entry => 
+        entry.id === entryId 
+          ? { ...entry, aiInsight: insight, aiInsightLoading: false }
+          : entry
+      ));
+    } catch (err) {
+      console.error('Failed to generate AI insight:', err);
+      // Remove loading state on error
+      setEntries(prev => prev.map(entry => 
+        entry.id === entryId 
+          ? { ...entry, aiInsightLoading: false }
+          : entry
+      ));
+    }
+  };
   const updateEntry = async (id: string, entryData: Partial<Omit<JournalEntry, 'id' | 'user_id' | 'createdAt' | 'updatedAt'>>) => {
     try {
       let updateData = { ...entryData };
@@ -95,6 +135,10 @@ export function useJournalEntries(userId: string | undefined) {
             sentiment,
             keywords,
           };
+
+          // Regenerate AI insight if content changed
+          const mood = entryData.mood ?? currentEntry.mood;
+          generateAIInsight(id, content, gratitudes, mood);
         }
       }
 
@@ -136,5 +180,6 @@ export function useJournalEntries(userId: string | undefined) {
     updateEntry,
     deleteEntry,
     refetch: fetchEntries,
+    generateAIInsight,
   };
 }
