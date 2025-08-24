@@ -1,4 +1,5 @@
 import  { useState } from 'react';
+import { useEffect } from 'react';
 import { Plus, BarChart3, BookOpen, Download, Sparkles, LogOut, User } from 'lucide-react';
 import JournalEntry from './components/JournalEntry';
 import EntryList from './components/EntryList';
@@ -21,7 +22,7 @@ function App() {
   const [insights, setInsights] = useState(() => generateInsights(entries));
 
   // Update insights when entries change
-  useState(() => {
+  useEffect(() => {
     setInsights(generateInsights(entries));
   }, [entries]);
 

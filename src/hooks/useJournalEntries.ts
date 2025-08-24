@@ -99,7 +99,9 @@ export function useJournalEntries(userId: string | undefined) {
         .update({ ai_insight: insight })
         .eq('id', entryId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Failed to save AI insight to database:', error);
+      }
 
       // Update UI with the insight
       setEntries(prev => prev.map(entry => 
@@ -117,6 +119,7 @@ export function useJournalEntries(userId: string | undefined) {
       ));
     }
   };
+
   const updateEntry = async (id: string, entryData: Partial<Omit<JournalEntry, 'id' | 'user_id' | 'createdAt' | 'updatedAt'>>) => {
     try {
       let updateData = { ...entryData };

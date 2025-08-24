@@ -1,11 +1,22 @@
 import { Groq } from 'groq-sdk';
 
-const groq = new Groq({
-  apiKey: import.meta.env.VITE_GROQ_API_KEY,
-  dangerouslyAllowBrowser: true
-});
+const groqApiKey = import.meta.env.VITE_GROQ_API_KEY;
+
+let groq: Groq | null = null;
+
+if (groqApiKey) {
+  groq = new Groq({
+    apiKey: groqApiKey,
+    dangerouslyAllowBrowser: true
+  });
+}
 
 export async function getJournalInsight(content: string, gratitudes: string[], mood: number): Promise<string> {
+  if (!groq) {
+    console.warn('Groq API key not configured');
+    return "Your reflection shows beautiful self-awareness. Keep nurturing your gratitude practice! ✨";
+  }
+
   try {
     const prompt = `As a supportive wellness coach, provide a brief, encouraging insight (max 2 sentences) about this journal entry:
 
@@ -44,6 +55,11 @@ export async function getOverallInsights(
   commonThemes: string[],
   sentimentDistribution: { positive: number; neutral: number; negative: number }
 ): Promise<string> {
+  if (!groq) {
+    console.warn('Groq API key not configured');
+    return "Your consistent practice of gratitude is building a foundation for lasting happiness. Every entry is a step toward greater well-being! ✨";
+  }
+
   try {
     const prompt = `As a wellness analytics expert, provide encouraging insights (max 3 sentences) based on these gratitude journal metrics:
 
