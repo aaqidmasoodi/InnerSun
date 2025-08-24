@@ -101,6 +101,13 @@ export function useJournalEntries(userId: string | undefined) {
 
       if (error) {
         console.error('Failed to save AI insight to database:', error);
+        // Still update UI even if database save fails
+        setEntries(prev => prev.map(entry => 
+          entry.id === entryId 
+            ? { ...entry, aiInsight: insight, aiInsightLoading: false }
+            : entry
+        ));
+        return;
       }
 
       // Update UI with the insight
@@ -137,11 +144,24 @@ export function useJournalEntries(userId: string | undefined) {
             ...updateData,
             sentiment,
             keywords,
+            ai_insight: null, // Clear existing AI insight when content changes
           };
 
-          // Regenerate AI insight if content changed
+          // Regenerate AI insight since content changed
           const mood = entryData.mood ?? currentEntry.mood;
-          generateAIInsight(id, content, gratitudes, mood);
+          // Update database first, then generate new insight
+          const { error: updateError } = await supabase
+            .from('journal_entries')
+            .update(updateData)
+            .eq('id', id);
+
+          if (updateError) throw updateError;
+
+          // Generate new AI insight after successful update
+          setTimeout(() => generateAIInsight(id, content, gratitudes, mood), 100);
+          
+          await fetchEntries(); // Refresh the list
+          return;
         }
       }
 

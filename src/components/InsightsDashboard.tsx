@@ -5,11 +5,21 @@ import { EmotionalInsight, ChartData } from '../types/journal';
 interface Props {
   insights: EmotionalInsight[];
   chartData: ChartData[];
+  loading?: boolean;
   onGenerateAISummary?: () => void;
 }
 
-export default function InsightsDashboard({ insights, chartData, onGenerateAISummary }: Props) {
+export default function InsightsDashboard({ insights, chartData, loading, onGenerateAISummary }: Props) {
   const currentInsight = insights[0]; // Most recent period
+
+  if (loading) {
+    return (
+      <div className="text-center py-12">
+        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+        <p className="mt-4 text-slate-600">Loading insights...</p>
+      </div>
+    );
+  }
 
   if (!currentInsight) {
     return (

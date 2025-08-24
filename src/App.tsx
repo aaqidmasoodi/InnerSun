@@ -8,7 +8,7 @@ import AuthForm from './components/AuthForm';
 import { JournalEntry as JournalEntryType, ChartData } from './types/journal';
 import { useAuth } from './hooks/useAuth';
 import { useJournalEntries } from './hooks/useJournalEntries';
-import { generateInsights, generateAISummary } from './utils/aiAnalyzer';
+import { useDashboardInsights } from './hooks/useDashboardInsights';
 
 type View = 'entries' | 'insights';
 
@@ -308,7 +308,8 @@ function App() {
           <InsightsDashboard 
             insights={insights} 
             chartData={chartData} 
-            onGenerateAISummary={handleGenerateAISummary}
+            onGenerateAISummary={regenerateAISummary}
+            loading={insightsLoading}
           />
         )}
           </>
