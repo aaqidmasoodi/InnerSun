@@ -29,7 +29,10 @@ export default function JournalEntry({ onSave, onCancel, initialEntry }: Props) 
 
   const handleSave = () => {
     const validGratitudes = gratitudes.filter(g => g.trim() !== '');
-    const entryDate = initialEntry?.date || new Date().toISOString().split('T')[0];
+    
+    // For new entries, always use current timestamp to ensure uniqueness
+    // For editing, keep the original date
+    const entryDate = initialEntry?.date || new Date().toISOString();
 
     onSave({
       date: entryDate,

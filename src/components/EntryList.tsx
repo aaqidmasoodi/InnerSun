@@ -51,7 +51,9 @@ export default function EntryList({ entries, onEdit, onDelete }: Props) {
                     weekday: 'long',
                     year: 'numeric',
                     month: 'long',
-                    day: 'numeric'
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
                   })}
                 </h3>
                 <div className="flex items-center space-x-2 mt-1">

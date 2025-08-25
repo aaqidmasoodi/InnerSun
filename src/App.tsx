@@ -51,9 +51,15 @@ function App() {
   const handleSaveEntry = async (entryData: Omit<JournalEntryType, 'id' | 'user_id' | 'createdAt' | 'updatedAt'>) => {
     try {
       if (editingEntry) {
+        // When editing, keep the original date
         await updateEntry(editingEntry.id, entryData);
       } else {
-        await saveEntry(entryData);
+        // When creating new entry, use current timestamp for uniqueness
+        const newEntryData = {
+          ...entryData,
+          date: new Date().toISOString()
+        };
+        await saveEntry(newEntryData);
       }
 
       setShowEntryModal(false);

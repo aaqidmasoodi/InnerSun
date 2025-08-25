@@ -55,6 +55,7 @@ export function useJournalEntries(userId: string | undefined) {
       const sentiment = analyzeSentiment(entryData.content + ' ' + entryData.gratitudes.join(' '));
       const keywords = extractKeywords(entryData.content + ' ' + entryData.gratitudes.join(' '));
 
+      // Always insert a new entry - never upsert
       const { data, error } = await supabase
         .from('journal_entries')
         .insert({
