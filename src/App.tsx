@@ -15,48 +15,11 @@ type View = 'entries' | 'insights';
 function App() {
   const { user, loading: authLoading, signOut } = useAuth();
   const { entries, loading: entriesLoading, saveEntry, updateEntry, deleteEntry } = useJournalEntries(user?.id);
+  const { insights, loading: insightsLoading, regenerateAISummary } = useDashboardInsights(user?.id, entries);
   const [currentView, setCurrentView] = useState<View>('entries');
   const [showEntryModal, setShowEntryModal] = useState(false);
   const [editingEntry, setEditingEntry] = useState<JournalEntryType | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [insights, setInsights] = useState(() => generateInsights(entries));
-
-  // Update insights when entries change
-  useEffect(() => {
-    setInsights(generateInsights(entries));
-  }, [entries]);
-
-  const handleGenerateAISummary = async () => {
-    if (insights.length === 0) return;
-    
-    const currentInsight = insights[0];
-    
-    // Set loading state
-    setInsights(prev => prev.map((insight, index) => 
-      index === 0 
-        ? { ...insight, aiSummaryLoading: true }
-        : insight
-    ));
-
-    try {
-      const aiSummary = await generateAISummary(currentInsight, entries.length);
-      
-      // Update with AI summary
-      setInsights(prev => prev.map((insight, index) => 
-        index === 0 
-          ? { ...insight, aiSummary, aiSummaryLoading: false }
-          : insight
-      ));
-    } catch (error) {
-      console.error('Failed to generate AI summary:', error);
-      // Remove loading state on error
-      setInsights(prev => prev.map((insight, index) => 
-        index === 0 
-          ? { ...insight, aiSummaryLoading: false }
-          : insight
-      ));
-    }
-  };
 
   // Show auth form if not authenticated
   if (authLoading) {
