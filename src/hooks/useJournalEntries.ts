@@ -57,7 +57,7 @@ export function useJournalEntries(userId: string | undefined) {
 
       const { data, error } = await supabase
         .from('journal_entries')
-        .upsert({
+        .insert({
           user_id: userId,
           date: entryData.date,
           content: entryData.content,
@@ -65,8 +65,6 @@ export function useJournalEntries(userId: string | undefined) {
           mood: entryData.mood,
           sentiment,
           keywords,
-        }, {
-          onConflict: 'user_id,date'
         })
         .select()
         .single();

@@ -50,16 +50,17 @@ function App() {
 
   const handleSaveEntry = async (entryData: Omit<JournalEntryType, 'id' | 'user_id' | 'createdAt' | 'updatedAt'>) => {
     try {
-    if (editingEntry) {
+      if (editingEntry) {
         await updateEntry(editingEntry.id, entryData);
-    } else {
+      } else {
         await saveEntry(entryData);
-    }
+      }
 
-    setShowEntryModal(false);
-    setEditingEntry(null);
+      setShowEntryModal(false);
+      setEditingEntry(null);
     } catch (error) {
       console.error('Failed to save entry:', error);
+      alert('Failed to save entry: ' + (error instanceof Error ? error.message : 'Unknown error'));
     }
   };
 
