@@ -65,6 +65,8 @@ export function useJournalEntries(userId: string | undefined) {
           mood: entryData.mood,
           sentiment,
           keywords,
+        }, {
+          onConflict: 'user_id,date'
         })
         .select()
         .single();
